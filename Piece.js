@@ -6,6 +6,8 @@ class Piece {
 
     this.number = number;
 
+    this.id = Math.floor(Math.random() * 100);
+
     this.position = {};
     this.position.x = position.x;
     this.position.y = position.y;
@@ -15,7 +17,7 @@ class Piece {
     this.elem = this.createElement(number);
   }
 
-  createElement(number, position) {
+  createElement(number) {
     const { gap } = this.board.misurements;
 
     const elem = document.createElement('div');
@@ -29,19 +31,32 @@ class Piece {
     elem.style.left = this.position.x * (this.width + gap) + gap + 'px';
     elem.style.top = this.position.y * (this.width + gap) + gap + 'px';
 
-    elem.innerText = String(number);
+    elem.innerText = String(this.number);
 
     this.board.elem.appendChild(elem);
 
-    gsap.fromTo(elem, { duration: 0.05, scale: 0 }, { scale: 1 });
+    gsap.fromTo(
+      elem,
+      { scale: 0 },
+      { scale: 1, duration: 0.25, ease: 'Power2.easeInOut' }
+    );
 
     return elem;
   }
 
   moveTo(position) {
+    this.board.emptyCell(this.position);
+
     this.position = position;
 
-    gsap.to(this.elem, { duration: 0.3, x: position.x, y: position.y });
+    this.board.fillCell(this);
+
+    const { gap } = this.board.misurements;
+
+    const left = this.position.x * (this.width + gap) + gap;
+    const top = this.position.y * (this.width + gap) + gap;
+
+    gsap.to(this.elem, { duration: 0.15, left, top, ease: 'Power2.easeInOut' });
   }
 }
 

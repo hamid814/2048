@@ -10,7 +10,7 @@ class Board {
 
     this.misurements = {
       width: options.width || 500,
-      gap: options.gap || 20,
+      gap: options.width ? options.width * 0.03 : 12,
       radius: options.radius || 10,
     };
 
@@ -27,7 +27,7 @@ class Board {
 
     elem.style.width = this.misurements.width + 'px';
     elem.style.height = this.misurements.width + 'px';
-    elem.style.borderRadius = this.misurements.radius + 'px';
+    elem.style.borderRadius = this.misurements.radius * 2 + 'px';
 
     document.body.appendChild(elem);
 
@@ -78,22 +78,145 @@ class Board {
     const emptyCells = this.getEmptyCells();
     const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
 
-    console.log(cell);
-
     const piece = new Piece(number, cell, this);
 
     return piece;
   }
 
-  startGame() {
-    const cell1 = this.getRandomPiece();
-    this.cells[cell1.position.x][cell1.position.y] = cell1;
-
-    const cell2 = this.getRandomPiece();
-    this.cells[cell2.position.x][cell2.position.y] = cell2;
+  fillCell(piece) {
+    this.cells[piece.position.x][piece.position.y] = piece;
   }
 
-  move(direction) {}
+  emptyCell(pos) {
+    this.cells[pos.x][pos.y] = null;
+  }
+
+  startGame() {
+    for (let i = 0; i < 9; i++) {
+      const cell = this.getRandomPiece();
+      this.fillCell(cell);
+    }
+  }
+
+  addPiece() {
+    const cell = this.getRandomPiece();
+    this.fillCell(cell);
+  }
+
+  move(direction) {
+    let moved = false;
+
+    if (direction === 0) {
+      moved = this.moveUp();
+    }
+    if (direction === 1) {
+      moved = this.moveRight();
+    }
+    if (direction === 2) {
+      moved = this.moveDown();
+    }
+    if (direction === 3) {
+      moved = this.moveLeft();
+    }
+
+    if (moved) {
+      this.addPiece();
+    }
+  }
+
+  moveUp() {
+    let moved = false;
+
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        const piece = this.cells[i][j];
+        if (piece !== null) {
+          for (let k = 0; k < 4; k++) {
+            if (this.cells[i][k] === null && piece.position.y > k) {
+              piece.moveTo({ x: i, y: k });
+              moved = true;
+              break;
+            }
+          }
+
+          // if (this.cells[i][0] === null && piece.position.y > 0) {
+          //   piece.moveTo({ x: i, y: 0 });
+          // } else if (this.cells[i][1] === null && piece.position.y > 1) {
+          //   piece.moveTo({ x: i, y: 1 });
+          // } else if (this.cells[i][2] === null && piece.position.y > 2) {
+          //   piece.moveTo({ x: i, y: 2 });
+          // } else if (this.cells[i][3] === null && piece.position.y > 3) {
+          //   piece.moveTo({ x: i, y: 3 });
+          // }
+        }
+      }
+    }
+
+    return moved;
+  }
+
+  moveRight() {
+    let moved = false;
+
+    for (let i = 3; i >= 0; i--) {
+      for (let j = 0; j < 4; j++) {
+        const piece = this.cells[i][j];
+        if (piece !== null) {
+          for (let k = 3; k >= 0; k--) {
+            if (this.cells[k][j] === null && piece.position.x < k) {
+              piece.moveTo({ x: k, y: j });
+              moved = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return moved;
+  }
+
+  moveDown() {
+    let moved = false;
+
+    for (let i = 0; i < 4; i++) {
+      for (let j = 3; j >= 0; j--) {
+        const piece = this.cells[i][j];
+        if (piece !== null) {
+          for (let k = 4; k >= 0; k--) {
+            if (this.cells[i][k] === null && piece.position.y < k) {
+              piece.moveTo({ x: i, y: k });
+              moved = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return moved;
+  }
+
+  moveLeft() {
+    let moved = false;
+
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        const piece = this.cells[i][j];
+        if (piece !== null) {
+          for (let k = 0; k < 4; k++) {
+            if (this.cells[k][j] === null && piece.position.x > k) {
+              piece.moveTo({ x: k, y: j });
+              moved = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return moved;
+  }
 }
 
 export default Board;

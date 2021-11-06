@@ -5718,6 +5718,7 @@ var Piece = /*#__PURE__*/function () {
 
     this.board = board;
     this.number = number;
+    this.id = Math.floor(Math.random() * 100);
     this.position = {};
     this.position.x = position.x;
     this.position.y = position.y;
@@ -5727,7 +5728,7 @@ var Piece = /*#__PURE__*/function () {
 
   _createClass(Piece, [{
     key: "createElement",
-    value: function createElement(number, position) {
+    value: function createElement(number) {
       var gap = this.board.misurements.gap;
       var elem = document.createElement('div');
       elem.className = 'piece';
@@ -5736,14 +5737,15 @@ var Piece = /*#__PURE__*/function () {
       elem.style.borderRadius = this.board.misurements.radius + 'px';
       elem.style.left = this.position.x * (this.width + gap) + gap + 'px';
       elem.style.top = this.position.y * (this.width + gap) + gap + 'px';
-      elem.innerText = String(number);
+      elem.innerText = String(this.number);
       this.board.elem.appendChild(elem);
 
       _gsap.default.fromTo(elem, {
-        duration: 0.05,
         scale: 0
       }, {
-        scale: 1
+        scale: 1,
+        duration: 0.25,
+        ease: 'Power2.easeInOut'
       });
 
       return elem;
@@ -5751,12 +5753,18 @@ var Piece = /*#__PURE__*/function () {
   }, {
     key: "moveTo",
     value: function moveTo(position) {
+      this.board.emptyCell(this.position);
       this.position = position;
+      this.board.fillCell(this);
+      var gap = this.board.misurements.gap;
+      var left = this.position.x * (this.width + gap) + gap;
+      var top = this.position.y * (this.width + gap) + gap;
 
       _gsap.default.to(this.elem, {
-        duration: 0.3,
-        x: position.x,
-        y: position.y
+        duration: 0.15,
+        left: left,
+        top: top,
+        ease: 'Power2.easeInOut'
       });
     }
   }]);
@@ -5793,7 +5801,7 @@ var Board = /*#__PURE__*/function () {
     this.cells = initialOrder || [[].concat(na), [].concat(na), [].concat(na), [].concat(na)];
     this.misurements = {
       width: options.width || 500,
-      gap: options.gap || 20,
+      gap: options.width ? options.width * 0.03 : 12,
       radius: options.radius || 10
     };
     this.elem = this.createElement();
@@ -5808,7 +5816,7 @@ var Board = /*#__PURE__*/function () {
       elem.className = 'board';
       elem.style.width = this.misurements.width + 'px';
       elem.style.height = this.misurements.width + 'px';
-      elem.style.borderRadius = this.misurements.radius + 'px';
+      elem.style.borderRadius = this.misurements.radius * 2 + 'px';
       document.body.appendChild(elem);
       return elem;
     }
@@ -5859,21 +5867,171 @@ var Board = /*#__PURE__*/function () {
       var number = Math.random() < 0.75 ? 2 : 4;
       var emptyCells = this.getEmptyCells();
       var cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-      console.log(cell);
       var piece = new _Piece.default(number, cell, this);
       return piece;
     }
   }, {
+    key: "fillCell",
+    value: function fillCell(piece) {
+      this.cells[piece.position.x][piece.position.y] = piece;
+    }
+  }, {
+    key: "emptyCell",
+    value: function emptyCell(pos) {
+      this.cells[pos.x][pos.y] = null;
+    }
+  }, {
     key: "startGame",
     value: function startGame() {
-      var cell1 = this.getRandomPiece();
-      this.cells[cell1.position.x][cell1.position.y] = cell1;
-      var cell2 = this.getRandomPiece();
-      this.cells[cell2.position.x][cell2.position.y] = cell2;
+      for (var i = 0; i < 9; i++) {
+        var cell = this.getRandomPiece();
+        this.fillCell(cell);
+      }
+    }
+  }, {
+    key: "addPiece",
+    value: function addPiece() {
+      var cell = this.getRandomPiece();
+      this.fillCell(cell);
     }
   }, {
     key: "move",
-    value: function move(direction) {}
+    value: function move(direction) {
+      var moved = false;
+
+      if (direction === 0) {
+        moved = this.moveUp();
+      }
+
+      if (direction === 1) {
+        moved = this.moveRight();
+      }
+
+      if (direction === 2) {
+        moved = this.moveDown();
+      }
+
+      if (direction === 3) {
+        moved = this.moveLeft();
+      }
+
+      if (moved) {
+        this.addPiece();
+      }
+    }
+  }, {
+    key: "moveUp",
+    value: function moveUp() {
+      var moved = false;
+
+      for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 4; j++) {
+          var piece = this.cells[i][j];
+
+          if (piece !== null) {
+            for (var k = 0; k < 4; k++) {
+              if (this.cells[i][k] === null && piece.position.y > k) {
+                piece.moveTo({
+                  x: i,
+                  y: k
+                });
+                moved = true;
+                break;
+              }
+            } // if (this.cells[i][0] === null && piece.position.y > 0) {
+            //   piece.moveTo({ x: i, y: 0 });
+            // } else if (this.cells[i][1] === null && piece.position.y > 1) {
+            //   piece.moveTo({ x: i, y: 1 });
+            // } else if (this.cells[i][2] === null && piece.position.y > 2) {
+            //   piece.moveTo({ x: i, y: 2 });
+            // } else if (this.cells[i][3] === null && piece.position.y > 3) {
+            //   piece.moveTo({ x: i, y: 3 });
+            // }
+
+          }
+        }
+      }
+
+      return moved;
+    }
+  }, {
+    key: "moveRight",
+    value: function moveRight() {
+      var moved = false;
+
+      for (var i = 3; i >= 0; i--) {
+        for (var j = 0; j < 4; j++) {
+          var piece = this.cells[i][j];
+
+          if (piece !== null) {
+            for (var k = 3; k >= 0; k--) {
+              if (this.cells[k][j] === null && piece.position.x < k) {
+                piece.moveTo({
+                  x: k,
+                  y: j
+                });
+                moved = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      return moved;
+    }
+  }, {
+    key: "moveDown",
+    value: function moveDown() {
+      var moved = false;
+
+      for (var i = 0; i < 4; i++) {
+        for (var j = 3; j >= 0; j--) {
+          var piece = this.cells[i][j];
+
+          if (piece !== null) {
+            for (var k = 4; k >= 0; k--) {
+              if (this.cells[i][k] === null && piece.position.y < k) {
+                piece.moveTo({
+                  x: i,
+                  y: k
+                });
+                moved = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      return moved;
+    }
+  }, {
+    key: "moveLeft",
+    value: function moveLeft() {
+      var moved = false;
+
+      for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 4; j++) {
+          var piece = this.cells[i][j];
+
+          if (piece !== null) {
+            for (var k = 0; k < 4; k++) {
+              if (this.cells[k][j] === null && piece.position.x > k) {
+                piece.moveTo({
+                  x: k,
+                  y: j
+                });
+                moved = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      return moved;
+    }
   }]);
 
   return Board;
