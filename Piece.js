@@ -12,6 +12,8 @@ class Piece {
     this.position.x = position.x;
     this.position.y = position.y;
 
+    this.justDoubled = false;
+
     this.width = (board.misurements.width - board.misurements.gap * 5) / 4;
 
     this.elem = this.createElement(number);
@@ -48,7 +50,7 @@ class Piece {
     this.board.emptyCell(this.position);
 
     this.position = position;
-
+    //
     this.board.fillCell(this);
 
     const { gap } = this.board.misurements;
@@ -57,6 +59,30 @@ class Piece {
     const top = this.position.y * (this.width + gap) + gap;
 
     gsap.to(this.elem, { duration: 0.15, left, top, ease: 'Power2.easeInOut' });
+  }
+
+  double() {
+    this.number = this.number * 2;
+
+    this.elem.innerText = String(this.number);
+    this.elem.classList.add('doubled');
+
+    this.justDoubled = true;
+  }
+
+  dispose(position) {
+    this.board.emptyCell(this.position);
+
+    const { gap } = this.board.misurements;
+
+    const left = position.x * (this.width + gap) + gap;
+    const top = position.y * (this.width + gap) + gap;
+
+    gsap.to(this.elem, { duration: 0.15, left, top, ease: 'Power2.easeInOut' });
+
+    setTimeout(() => {
+      this.elem.remove();
+    }, 150);
   }
 }
 

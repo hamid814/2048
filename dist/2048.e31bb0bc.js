@@ -5722,6 +5722,7 @@ var Piece = /*#__PURE__*/function () {
     this.position = {};
     this.position.x = position.x;
     this.position.y = position.y;
+    this.justDoubled = false;
     this.width = (board.misurements.width - board.misurements.gap * 5) / 4;
     this.elem = this.createElement(number);
   }
@@ -5754,7 +5755,8 @@ var Piece = /*#__PURE__*/function () {
     key: "moveTo",
     value: function moveTo(position) {
       this.board.emptyCell(this.position);
-      this.position = position;
+      this.position = position; //
+
       this.board.fillCell(this);
       var gap = this.board.misurements.gap;
       var left = this.position.x * (this.width + gap) + gap;
@@ -5766,6 +5768,35 @@ var Piece = /*#__PURE__*/function () {
         top: top,
         ease: 'Power2.easeInOut'
       });
+    }
+  }, {
+    key: "double",
+    value: function double() {
+      this.number = this.number * 2;
+      this.elem.innerText = String(this.number);
+      this.elem.classList.add('doubled');
+      this.justDoubled = true;
+    }
+  }, {
+    key: "dispose",
+    value: function dispose(position) {
+      var _this = this;
+
+      this.board.emptyCell(this.position);
+      var gap = this.board.misurements.gap;
+      var left = position.x * (this.width + gap) + gap;
+      var top = position.y * (this.width + gap) + gap;
+
+      _gsap.default.to(this.elem, {
+        duration: 0.15,
+        left: left,
+        top: top,
+        ease: 'Power2.easeInOut'
+      });
+
+      setTimeout(function () {
+        _this.elem.remove();
+      }, 150);
     }
   }]);
 
@@ -5798,7 +5829,7 @@ var Board = /*#__PURE__*/function () {
 
     var options = inOptions || {};
     var na = [null, null, null, null];
-    this.cells = initialOrder || [[].concat(na), [].concat(na), [].concat(na), [].concat(na)];
+    this.cells = [[].concat(na), [].concat(na), [].concat(na), [].concat(na)];
     this.misurements = {
       width: options.width || 500,
       gap: options.width ? options.width * 0.03 : 12,
@@ -5806,7 +5837,12 @@ var Board = /*#__PURE__*/function () {
     };
     this.elem = this.createElement();
     this.emptyCells = this.createEmptyCells();
-    this.startGame();
+
+    if (initialOrder) {
+      this.fillBoardWithConfig(initialOrder);
+    } else {
+      this.startGame();
+    }
   }
 
   _createClass(Board, [{
@@ -5840,6 +5876,23 @@ var Board = /*#__PURE__*/function () {
           this.elem.appendChild(cell);
         }
       }
+    }
+  }, {
+    key: "getPieces",
+    value: function getPieces() {
+      var cells = [];
+
+      for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 4; j++) {
+          var piece = this.cells[i][j];
+
+          if (piece !== null) {
+            cells.push(piece);
+          }
+        }
+      }
+
+      return cells;
     }
   }, {
     key: "getEmptyCells",
@@ -5878,12 +5931,33 @@ var Board = /*#__PURE__*/function () {
   }, {
     key: "emptyCell",
     value: function emptyCell(pos) {
+      console.log('empty: ' + pos.x + ',' + pos.y);
       this.cells[pos.x][pos.y] = null;
+    }
+  }, {
+    key: "fillBoardWithConfig",
+    value: function fillBoardWithConfig(config) {
+      var _this = this;
+
+      config.forEach(function (item) {
+        _this.cells[item.position.x][item.position.y] = new _Piece.default(item.number, item.position, _this);
+      });
+    }
+  }, {
+    key: "logCells",
+    value: function logCells() {
+      var cells = this.cells;
+      console.log('-----------');
+      console.log('|', cells[0][0] ? cells[0][0].number : 0, cells[1][0] ? cells[1][0].number : 0, cells[2][0] ? cells[2][0].number : 0, cells[3][0] ? cells[3][0].number : 0, '|');
+      console.log('|', cells[0][1] ? cells[0][1].number : 0, cells[1][1] ? cells[1][1].number : 0, cells[2][1] ? cells[2][1].number : 0, cells[3][1] ? cells[3][1].number : 0, '|');
+      console.log('|', cells[0][2] ? cells[0][2].number : 0, cells[1][2] ? cells[1][2].number : 0, cells[2][2] ? cells[2][2].number : 0, cells[3][2] ? cells[3][2].number : 0, '|');
+      console.log('|', cells[0][3] ? cells[0][3].number : 0, cells[1][3] ? cells[1][3].number : 0, cells[2][3] ? cells[2][3].number : 0, cells[3][3] ? cells[3][3].number : 0, '|');
+      console.log('-----------');
     }
   }, {
     key: "startGame",
     value: function startGame() {
-      for (var i = 0; i < 9; i++) {
+      for (var i = 0; i < 2; i++) {
         var cell = this.getRandomPiece();
         this.fillCell(cell);
       }
@@ -5915,6 +5989,10 @@ var Board = /*#__PURE__*/function () {
         moved = this.moveLeft();
       }
 
+      this.getPieces().forEach(function (piece) {
+        return piece.justDoubled = false;
+      });
+
       if (moved) {
         this.addPiece();
       }
@@ -5924,30 +6002,69 @@ var Board = /*#__PURE__*/function () {
     value: function moveUp() {
       var moved = false;
 
-      for (var i = 0; i < 4; i++) {
-        for (var j = 0; j < 4; j++) {
-          var piece = this.cells[i][j];
+      for (var x = 0; x < 4; x++) {
+        for (var y = 0; y < 4; y++) {
+          var piece = this.cells[x][y];
 
           if (piece !== null) {
-            for (var k = 0; k < 4; k++) {
-              if (this.cells[i][k] === null && piece.position.y > k) {
-                piece.moveTo({
-                  x: i,
-                  y: k
-                });
-                moved = true;
-                break;
-              }
-            } // if (this.cells[i][0] === null && piece.position.y > 0) {
+            // if (this.cells[i][0] === null && piece.position.y > 0) {
             //   piece.moveTo({ x: i, y: 0 });
             // } else if (this.cells[i][1] === null && piece.position.y > 1) {
             //   piece.moveTo({ x: i, y: 1 });
+            //   if (
+            //     this.cells[i][0].number === piece.number &&
+            //     !this.cells[i][0].justDoubled
+            //   ) {
+            //     this.cells[i][0].double();
+            //     piece.dispose(this.cells[i][0].position);
+            //   }
             // } else if (this.cells[i][2] === null && piece.position.y > 2) {
             //   piece.moveTo({ x: i, y: 2 });
+            //   if (
+            //     this.cells[i][1].number === piece.number &&
+            //     !this.cells[i][1].justDoubled
+            //   ) {
+            //     this.cells[i][1].double();
+            //     piece.dispose(this.cells[i][1].position);
+            //   }
             // } else if (this.cells[i][3] === null && piece.position.y > 3) {
             //   piece.moveTo({ x: i, y: 3 });
+            //   if (
+            //     this.cells[i][2].number === piece.number &&
+            //     !this.cells[i][2].justDoubled
+            //   ) {
+            //     this.cells[i][2].double();
+            //     piece.dispose(this.cells[i][2].position);
+            //   }
             // }
+            var cells = this.cells;
+            var doubled = false;
 
+            for (var k = y - 1; k >= 0; k--) {
+              if (cells[x][k] !== null) {
+                if (cells[x][k].number === piece.number && !cells[x][k].justDoubled) {
+                  cells[x][k].double();
+                  piece.dispose(cells[x][k].position);
+                  moved = true;
+                  doubled = true;
+                } else {
+                  break;
+                }
+              }
+            }
+
+            if (!doubled) {
+              for (var _k = 0; _k < 4; _k++) {
+                if (this.cells[x][_k] === null && piece.position.y > _k) {
+                  piece.moveTo({
+                    x: x,
+                    y: _k
+                  });
+                  moved = true;
+                  break;
+                }
+              }
+            }
           }
         }
       }
@@ -5959,19 +6076,37 @@ var Board = /*#__PURE__*/function () {
     value: function moveRight() {
       var moved = false;
 
-      for (var i = 3; i >= 0; i--) {
-        for (var j = 0; j < 4; j++) {
-          var piece = this.cells[i][j];
+      for (var x = 3; x >= 0; x--) {
+        for (var y = 0; y < 4; y++) {
+          var piece = this.cells[x][y];
 
           if (piece !== null) {
-            for (var k = 3; k >= 0; k--) {
-              if (this.cells[k][j] === null && piece.position.x < k) {
-                piece.moveTo({
-                  x: k,
-                  y: j
-                });
-                moved = true;
-                break;
+            var cells = this.cells;
+            var doubled = false;
+
+            for (var k = x + 1; k < 4; k++) {
+              if (cells[k][y] !== null) {
+                if (cells[k][y].number === piece.number && !cells[k][y].justDoubled) {
+                  cells[k][y].double();
+                  piece.dispose(cells[k][y].position);
+                  moved = true;
+                  doubled = true;
+                } else {
+                  break;
+                }
+              }
+            }
+
+            if (!doubled) {
+              for (var _k2 = 3; _k2 >= 0; _k2--) {
+                if (this.cells[_k2][y] === null && piece.position.x < _k2) {
+                  piece.moveTo({
+                    x: _k2,
+                    y: y
+                  });
+                  moved = true;
+                  break;
+                }
               }
             }
           }
@@ -5985,19 +6120,37 @@ var Board = /*#__PURE__*/function () {
     value: function moveDown() {
       var moved = false;
 
-      for (var i = 0; i < 4; i++) {
-        for (var j = 3; j >= 0; j--) {
-          var piece = this.cells[i][j];
+      for (var x = 0; x < 4; x++) {
+        for (var y = 3; y >= 0; y--) {
+          var piece = this.cells[x][y];
 
           if (piece !== null) {
-            for (var k = 4; k >= 0; k--) {
-              if (this.cells[i][k] === null && piece.position.y < k) {
-                piece.moveTo({
-                  x: i,
-                  y: k
-                });
-                moved = true;
-                break;
+            var cells = this.cells;
+            var doubled = false;
+
+            for (var k = y + 1; k < 4; k++) {
+              if (cells[x][k] !== null) {
+                if (cells[x][k].number === piece.number && !cells[x][k].justDoubled) {
+                  cells[x][k].double();
+                  piece.dispose(cells[x][k].position);
+                  moved = true;
+                  doubled = true;
+                } else {
+                  break;
+                }
+              }
+            }
+
+            if (!doubled) {
+              for (var _k3 = 4; _k3 >= 0; _k3--) {
+                if (this.cells[x][_k3] === null && piece.position.y < _k3) {
+                  piece.moveTo({
+                    x: x,
+                    y: _k3
+                  });
+                  moved = true;
+                  break;
+                }
               }
             }
           }
@@ -6011,19 +6164,37 @@ var Board = /*#__PURE__*/function () {
     value: function moveLeft() {
       var moved = false;
 
-      for (var i = 0; i < 4; i++) {
-        for (var j = 0; j < 4; j++) {
-          var piece = this.cells[i][j];
+      for (var x = 0; x < 4; x++) {
+        for (var y = 0; y < 4; y++) {
+          var piece = this.cells[x][y];
 
           if (piece !== null) {
-            for (var k = 0; k < 4; k++) {
-              if (this.cells[k][j] === null && piece.position.x > k) {
-                piece.moveTo({
-                  x: k,
-                  y: j
-                });
-                moved = true;
-                break;
+            var cells = this.cells;
+            var doubled = false;
+
+            for (var k = x - 1; k >= 0; k--) {
+              if (cells[k][y] !== null) {
+                if (cells[k][y].number === piece.number && !cells[k][y].justDoubled) {
+                  cells[k][y].double();
+                  piece.dispose(cells[k][y].position);
+                  moved = true;
+                  doubled = true;
+                } else {
+                  break;
+                }
+              }
+            }
+
+            if (!doubled) {
+              for (var _k4 = 0; _k4 < 4; _k4++) {
+                if (this.cells[_k4][y] === null && piece.position.x > _k4) {
+                  piece.moveTo({
+                    x: _k4,
+                    y: y
+                  });
+                  moved = true;
+                  break;
+                }
               }
             }
           }
@@ -6046,14 +6217,33 @@ var _Board = _interopRequireDefault(require("./Board"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var initial = [{
+  number: 4,
+  position: {
+    x: 3,
+    y: 0
+  }
+}, {
+  number: 4,
+  position: {
+    x: 3,
+    y: 2
+  }
+}, {
+  number: 2,
+  position: {
+    x: 3,
+    y: 3
+  }
+}];
 var board;
 
 if (window.innerWidth < 500) {
   board = new _Board.default({
     width: window.innerWidth
-  });
+  }, initial);
 } else {
-  board = new _Board.default();
+  board = new _Board.default({}, initial);
 }
 
 document.addEventListener('keydown', function (e) {

@@ -1,10 +1,34 @@
 import Board from './Board';
 
+const initial = [
+  {
+    number: 4,
+    position: {
+      x: 3,
+      y: 0,
+    },
+  },
+  {
+    number: 4,
+    position: {
+      x: 3,
+      y: 2,
+    },
+  },
+  {
+    number: 2,
+    position: {
+      x: 3,
+      y: 3,
+    },
+  },
+];
+
 let board;
 if (window.innerWidth < 500) {
-  board = new Board({ width: window.innerWidth });
+  board = new Board({ width: window.innerWidth }, initial);
 } else {
-  board = new Board();
+  board = new Board({}, initial);
 }
 
 document.addEventListener('keydown', (e) => {
