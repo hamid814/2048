@@ -1,0 +1,14 @@
+{
+  "name": "2048",
+  "version": "1.0.0",
+  "description": "2048 AI",
+  "main": "index.html",
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "author": "hamid814",
+  "license": "MIT",
+  "dependencies": {
+    "gsap": "^3.8.0"
+  }
+}
