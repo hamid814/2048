@@ -123,7 +123,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports._colorExp = exports._getCache = exports._getSetter = exports._missingPlugin = exports._round = exports._roundModifier = exports._config = exports._ticker = exports._plugins = exports._checkPlugin = exports._replaceRandom = exports._colorStringFilter = exports._sortPropTweensByPriority = exports._forEachName = exports._removeLinkedListItem = exports._setDefaults = exports._relExp = exports._renderComplexString = exports._isUndefined = exports._isString = exports._numWithUnitExp = exports._numExp = exports._getProperty = exports.shuffle = exports.interpolate = exports.unitize = exports.pipe = exports.mapRange = exports.selector = exports.toArray = exports.splitColor = exports.clamp = exports.getUnit = exports.normalize = exports.snap = exports.random = exports.distribute = exports.wrapYoyo = exports.wrap = exports.Circ = exports.Expo = exports.Sine = exports.Bounce = exports.SteppedEase = exports.Back = exports.Elastic = exports.Strong = exports.Quint = exports.Quart = exports.Cubic = exports.Quad = exports.Linear = exports.Power4 = exports.Power3 = exports.Power2 = exports.Power1 = exports.Power0 = exports.default = exports.gsap = exports.PropTween = exports.TweenLite = exports.TweenMax = exports.Tween = exports.TimelineLite = exports.TimelineMax = exports.Timeline = exports.Animation = exports.GSCache = void 0;
+exports.wrapYoyo = exports.wrap = exports.unitize = exports.toArray = exports.splitColor = exports.snap = exports.shuffle = exports.selector = exports.random = exports.pipe = exports.normalize = exports.mapRange = exports.interpolate = exports.gsap = exports.getUnit = exports.distribute = exports.default = exports.clamp = exports._ticker = exports._sortPropTweensByPriority = exports._setDefaults = exports._roundModifier = exports._round = exports._replaceRandom = exports._renderComplexString = exports._removeLinkedListItem = exports._relExp = exports._plugins = exports._numWithUnitExp = exports._numExp = exports._missingPlugin = exports._isUndefined = exports._isString = exports._getSetter = exports._getProperty = exports._getCache = exports._forEachName = exports._config = exports._colorStringFilter = exports._colorExp = exports._checkPlugin = exports.TweenMax = exports.TweenLite = exports.Tween = exports.TimelineMax = exports.TimelineLite = exports.Timeline = exports.Strong = exports.SteppedEase = exports.Sine = exports.Quint = exports.Quart = exports.Quad = exports.PropTween = exports.Power4 = exports.Power3 = exports.Power2 = exports.Power1 = exports.Power0 = exports.Linear = exports.GSCache = exports.Expo = exports.Elastic = exports.Cubic = exports.Circ = exports.Bounce = exports.Back = exports.Animation = void 0;
 
 function _assertThisInitialized(self) {
   if (self === void 0) {
@@ -4129,7 +4129,7 @@ exports.Power0 = Power0;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.checkPrefix = exports._createElement = exports._getBBox = exports.default = exports.CSSPlugin = void 0;
+exports.default = exports.checkPrefix = exports._getBBox = exports._createElement = exports.CSSPlugin = void 0;
 
 var _gsapCore = require("./gsap-core.js");
 
@@ -5550,6 +5550,54 @@ _gsapCore.gsap.registerPlugin(CSSPlugin);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+Object.defineProperty(exports, "Back", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Back;
+  }
+});
+Object.defineProperty(exports, "Bounce", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Bounce;
+  }
+});
+Object.defineProperty(exports, "CSSPlugin", {
+  enumerable: true,
+  get: function () {
+    return _CSSPlugin.CSSPlugin;
+  }
+});
+Object.defineProperty(exports, "Circ", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Circ;
+  }
+});
+Object.defineProperty(exports, "Cubic", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Cubic;
+  }
+});
+Object.defineProperty(exports, "Elastic", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Elastic;
+  }
+});
+Object.defineProperty(exports, "Expo", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Expo;
+  }
+});
+Object.defineProperty(exports, "Linear", {
+  enumerable: true,
+  get: function () {
+    return _gsapCore.Linear;
+  }
+});
 Object.defineProperty(exports, "Power0", {
   enumerable: true,
   get: function () {
@@ -5580,22 +5628,10 @@ Object.defineProperty(exports, "Power4", {
     return _gsapCore.Power4;
   }
 });
-Object.defineProperty(exports, "Linear", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Linear;
-  }
-});
 Object.defineProperty(exports, "Quad", {
   enumerable: true,
   get: function () {
     return _gsapCore.Quad;
-  }
-});
-Object.defineProperty(exports, "Cubic", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Cubic;
   }
 });
 Object.defineProperty(exports, "Quart", {
@@ -5610,22 +5646,10 @@ Object.defineProperty(exports, "Quint", {
     return _gsapCore.Quint;
   }
 });
-Object.defineProperty(exports, "Strong", {
+Object.defineProperty(exports, "Sine", {
   enumerable: true,
   get: function () {
-    return _gsapCore.Strong;
-  }
-});
-Object.defineProperty(exports, "Elastic", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Elastic;
-  }
-});
-Object.defineProperty(exports, "Back", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Back;
+    return _gsapCore.Sine;
   }
 });
 Object.defineProperty(exports, "SteppedEase", {
@@ -5634,34 +5658,10 @@ Object.defineProperty(exports, "SteppedEase", {
     return _gsapCore.SteppedEase;
   }
 });
-Object.defineProperty(exports, "Bounce", {
+Object.defineProperty(exports, "Strong", {
   enumerable: true,
   get: function () {
-    return _gsapCore.Bounce;
-  }
-});
-Object.defineProperty(exports, "Sine", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Sine;
-  }
-});
-Object.defineProperty(exports, "Expo", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Expo;
-  }
-});
-Object.defineProperty(exports, "Circ", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.Circ;
-  }
-});
-Object.defineProperty(exports, "TweenLite", {
-  enumerable: true,
-  get: function () {
-    return _gsapCore.TweenLite;
+    return _gsapCore.Strong;
   }
 });
 Object.defineProperty(exports, "TimelineLite", {
@@ -5676,13 +5676,13 @@ Object.defineProperty(exports, "TimelineMax", {
     return _gsapCore.TimelineMax;
   }
 });
-Object.defineProperty(exports, "CSSPlugin", {
+Object.defineProperty(exports, "TweenLite", {
   enumerable: true,
   get: function () {
-    return _CSSPlugin.CSSPlugin;
+    return _gsapCore.TweenLite;
   }
 });
-exports.TweenMax = exports.default = exports.gsap = void 0;
+exports.gsap = exports.default = exports.TweenMax = void 0;
 
 var _gsapCore = require("./gsap-core.js");
 
@@ -6272,7 +6272,7 @@ document.addEventListener('keydown', function (e) {
 
   board.move(direction);
 });
-},{"./Board":"Board.js"}],"../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./Board":"Board.js"}],"../../../App/binaries/node/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -6300,7 +6300,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54886" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59782" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -6476,5 +6476,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
+},{}]},{},["../../../App/binaries/node/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.js"], null)
 //# sourceMappingURL=/2048.e31bb0bc.js.map
