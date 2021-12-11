@@ -5701,7 +5701,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _default = {
+var colors = {
   2: {
     bg: '#eee4da',
     text: '#776f67'
@@ -5747,6 +5747,14 @@ var _default = {
     text: '#f9f6f2'
   }
 };
+
+var _default = function _default(number) {
+  return colors[number] || {
+    bg: '#3e3933',
+    text: '#d9d6d2'
+  };
+};
+
 exports.default = _default;
 },{}],"Piece.js":[function(require,module,exports) {
 "use strict";
@@ -5796,9 +5804,7 @@ var Piece = /*#__PURE__*/function () {
       elem.style.left = this.position.x * (this.width + gap) + gap + 'px';
       elem.style.top = this.position.y * (this.width + gap) + gap + 'px';
       elem.innerText = String(this.number);
-
-      var color = _pieceColors.default[String(this.number)];
-
+      var color = (0, _pieceColors.default)(this.number);
       elem.style.backgroundColor = color.bg;
       elem.style.color = color.text;
       this.board.elem.appendChild(elem);
@@ -5839,9 +5845,7 @@ var Piece = /*#__PURE__*/function () {
       this.number = this.number * 2;
       this.elem.innerText = String(this.number);
       this.elem.classList.add('doubled');
-
-      var color = _pieceColors.default[String(this.number)];
-
+      var color = (0, _pieceColors.default)(this.number);
       this.elem.style.backgroundColor = color.bg;
       this.elem.style.color = color.text;
       this.justDoubled = true;
@@ -6010,6 +6014,21 @@ var Board = /*#__PURE__*/function () {
     key: "getRandomPiece",
     value: function getRandomPiece() {
       var number = Math.random() < 0.75 ? 2 : 4;
+      var twoAndFourStats = localStorage.getItem('twoAndFourStats');
+      twoAndFourStats ? twoAndFourStats = JSON.parse(twoAndFourStats) : twoAndFourStats = {
+        two: 0,
+        four: 0,
+        rate: 0
+      };
+
+      if (number === 2) {
+        twoAndFourStats.two++;
+      } else {
+        twoAndFourStats.four++;
+      }
+
+      twoAndFourStats.rate = Math.round(twoAndFourStats.four / (twoAndFourStats.four + twoAndFourStats.two) * 100) / 100;
+      localStorage.setItem('twoAndFourStats', JSON.stringify(twoAndFourStats));
       var emptyCells = this.getEmptyCells();
       var cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
       var piece = new _Piece.default(number, cell, this, {

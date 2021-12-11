@@ -107,6 +107,25 @@ class Board {
   getRandomPiece() {
     const number = Math.random() < 0.75 ? 2 : 4;
 
+    let twoAndFourStats = localStorage.getItem('twoAndFourStats');
+    twoAndFourStats
+      ? (twoAndFourStats = JSON.parse(twoAndFourStats))
+      : (twoAndFourStats = { two: 0, four: 0, rate: 0 });
+
+    if (number === 2) {
+      twoAndFourStats.two++;
+    } else {
+      twoAndFourStats.four++;
+    }
+
+    twoAndFourStats.rate =
+      Math.round(
+        (twoAndFourStats.four / (twoAndFourStats.four + twoAndFourStats.two)) *
+          100
+      ) / 100;
+
+    localStorage.setItem('twoAndFourStats', JSON.stringify(twoAndFourStats));
+
     const emptyCells = this.getEmptyCells();
     const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
 

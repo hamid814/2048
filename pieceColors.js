@@ -1,4 +1,4 @@
-export default {
+const colors = {
   2: {
     bg: '#eee4da',
     text: '#776f67',
@@ -43,4 +43,8 @@ export default {
     bg: '#edc22e',
     text: '#f9f6f2',
   },
+};
+
+export default (number) => {
+  return colors[number] || { bg: '#3e3933', text: '#d9d6d2' };
 };

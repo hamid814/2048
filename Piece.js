@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 
-import colors from './pieceColors';
+import getColor from './pieceColors';
 
 class Piece {
   constructor(number, position, board, options) {
@@ -39,7 +39,7 @@ class Piece {
 
     elem.innerText = String(this.number);
 
-    const color = colors[String(this.number)];
+    const color = getColor(this.number);
     elem.style.backgroundColor = color.bg;
     elem.style.color = color.text;
 
@@ -77,7 +77,7 @@ class Piece {
     this.elem.innerText = String(this.number);
     this.elem.classList.add('doubled');
 
-    const color = colors[String(this.number)];
+    const color = getColor(this.number);
     this.elem.style.backgroundColor = color.bg;
     this.elem.style.color = color.text;
 
