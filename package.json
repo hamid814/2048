@@ -4,11 +4,19 @@
   "description": "2048 AI",
   "main": "index.html",
   "scripts": {
-    "dev": "parcel index.html"
+    "dev": "parcel index.html",
+    "publish": "gh-pages -d dist",
+    "build": "parcel build index.html"
   },
   "author": "hamid814",
   "license": "MIT",
   "dependencies": {
     "gsap": "^3.8.0"
-  }
+  },
+  "devDependencies": {
+    "cssnano": "^5.0.12",
+    "gh-pages": "^3.2.3",
+    "postcss": "^8.4.4"
+  },
+  "homepage": "http://hamid814.github.io/2048"
 }
