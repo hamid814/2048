@@ -1,7 +1,9 @@
 import gsap from 'gsap';
 
+import colors from './pieceColors';
+
 class Piece {
-  constructor(number, position, board) {
+  constructor(number, position, board, options) {
     this.board = board;
 
     this.number = number;
@@ -12,14 +14,16 @@ class Piece {
     this.position.x = position.x;
     this.position.y = position.y;
 
+    this.options = options || {};
+
     this.justDoubled = false;
 
     this.width = (board.misurements.width - board.misurements.gap * 5) / 4;
 
-    this.elem = this.createElement(number);
+    this.elem = this.createElement(this.options.animate);
   }
 
-  createElement(number) {
+  createElement(animate) {
     const { gap } = this.board.misurements;
 
     const elem = document.createElement('div');
@@ -35,13 +39,19 @@ class Piece {
 
     elem.innerText = String(this.number);
 
+    const color = colors[String(this.number)];
+    elem.style.backgroundColor = color.bg;
+    elem.style.color = color.text;
+
     this.board.elem.appendChild(elem);
 
-    gsap.fromTo(
-      elem,
-      { scale: 0 },
-      { scale: 1, duration: 0.25, ease: 'Power2.easeInOut' }
-    );
+    if (animate) {
+      gsap.fromTo(
+        elem,
+        { scale: 0 },
+        { scale: 1, duration: 0.25, ease: 'Power2.easeInOut' }
+      );
+    }
 
     return elem;
   }
@@ -67,7 +77,15 @@ class Piece {
     this.elem.innerText = String(this.number);
     this.elem.classList.add('doubled');
 
+    const color = colors[String(this.number)];
+    this.elem.style.backgroundColor = color.bg;
+    this.elem.style.color = color.text;
+
     this.justDoubled = true;
+
+    if (this.number === 2048) {
+      this.board.win();
+    }
   }
 
   dispose(position) {
@@ -83,6 +101,10 @@ class Piece {
     setTimeout(() => {
       this.elem.remove();
     }, 150);
+  }
+
+  destroy() {
+    this.elem.remove();
   }
 }
 

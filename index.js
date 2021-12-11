@@ -1,28 +1,25 @@
 import Board from './Board';
 
-const initial = [
+let initial = [
   {
-    number: 4,
+    number: 2,
     position: {
-      x: 3,
+      x: 0,
       y: 0,
-    },
-  },
-  {
-    number: 4,
-    position: {
-      x: 3,
-      y: 2,
     },
   },
   {
     number: 2,
     position: {
-      x: 3,
-      y: 3,
+      x: 1,
+      y: 0,
     },
   },
 ];
+
+// get config from localstorage
+const confString = localStorage.getItem('config');
+confString && (initial = JSON.parse(confString));
 
 let board;
 if (window.innerWidth < 500) {
@@ -47,6 +44,9 @@ document.addEventListener('keydown', (e) => {
     case 'ArrowLeft':
       direction = 3;
       break;
+    case 'Escape':
+      board.undo();
+      return;
     default:
       return;
   }

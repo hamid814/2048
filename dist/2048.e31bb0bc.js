@@ -5694,7 +5694,61 @@ TweenMaxWithCSS = gsapWithCSS.core.Tween;
 
 exports.TweenMax = TweenMaxWithCSS;
 exports.default = exports.gsap = gsapWithCSS;
-},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"Piece.js":[function(require,module,exports) {
+},{"./gsap-core.js":"node_modules/gsap/gsap-core.js","./CSSPlugin.js":"node_modules/gsap/CSSPlugin.js"}],"pieceColors.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _default = {
+  2: {
+    bg: '#eee4da',
+    text: '#776f67'
+  },
+  4: {
+    bg: '#ede0c8',
+    text: '#776e65'
+  },
+  8: {
+    bg: '#f2b179',
+    text: '#f9f6f2'
+  },
+  16: {
+    bg: '#f59563',
+    text: '#f9f6f2'
+  },
+  32: {
+    bg: '#f67c5f',
+    text: '#f9f6f2'
+  },
+  64: {
+    bg: '#f65e3b',
+    text: '#f9f6f2'
+  },
+  128: {
+    bg: '#edcf72',
+    text: '#f9f6f2'
+  },
+  256: {
+    bg: '#edcc61',
+    text: '#f9f6f2'
+  },
+  512: {
+    bg: '#edc850',
+    text: '#f9f6f2'
+  },
+  1024: {
+    bg: '#edc53f',
+    text: '#f9f6f2'
+  },
+  2048: {
+    bg: '#edc22e',
+    text: '#f9f6f2'
+  }
+};
+exports.default = _default;
+},{}],"Piece.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5703,6 +5757,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 var _gsap = _interopRequireDefault(require("gsap"));
+
+var _pieceColors = _interopRequireDefault(require("./pieceColors"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -5713,7 +5769,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var Piece = /*#__PURE__*/function () {
-  function Piece(number, position, board) {
+  function Piece(number, position, board, options) {
     _classCallCheck(this, Piece);
 
     this.board = board;
@@ -5722,14 +5778,15 @@ var Piece = /*#__PURE__*/function () {
     this.position = {};
     this.position.x = position.x;
     this.position.y = position.y;
+    this.options = options || {};
     this.justDoubled = false;
     this.width = (board.misurements.width - board.misurements.gap * 5) / 4;
-    this.elem = this.createElement(number);
+    this.elem = this.createElement(this.options.animate);
   }
 
   _createClass(Piece, [{
     key: "createElement",
-    value: function createElement(number) {
+    value: function createElement(animate) {
       var gap = this.board.misurements.gap;
       var elem = document.createElement('div');
       elem.className = 'piece';
@@ -5739,15 +5796,22 @@ var Piece = /*#__PURE__*/function () {
       elem.style.left = this.position.x * (this.width + gap) + gap + 'px';
       elem.style.top = this.position.y * (this.width + gap) + gap + 'px';
       elem.innerText = String(this.number);
+
+      var color = _pieceColors.default[String(this.number)];
+
+      elem.style.backgroundColor = color.bg;
+      elem.style.color = color.text;
       this.board.elem.appendChild(elem);
 
-      _gsap.default.fromTo(elem, {
-        scale: 0
-      }, {
-        scale: 1,
-        duration: 0.25,
-        ease: 'Power2.easeInOut'
-      });
+      if (animate) {
+        _gsap.default.fromTo(elem, {
+          scale: 0
+        }, {
+          scale: 1,
+          duration: 0.25,
+          ease: 'Power2.easeInOut'
+        });
+      }
 
       return elem;
     }
@@ -5775,7 +5839,16 @@ var Piece = /*#__PURE__*/function () {
       this.number = this.number * 2;
       this.elem.innerText = String(this.number);
       this.elem.classList.add('doubled');
+
+      var color = _pieceColors.default[String(this.number)];
+
+      this.elem.style.backgroundColor = color.bg;
+      this.elem.style.color = color.text;
       this.justDoubled = true;
+
+      if (this.number === 2048) {
+        this.board.win();
+      }
     }
   }, {
     key: "dispose",
@@ -5798,6 +5871,11 @@ var Piece = /*#__PURE__*/function () {
         _this.elem.remove();
       }, 150);
     }
+  }, {
+    key: "destroy",
+    value: function destroy() {
+      this.elem.remove();
+    }
   }]);
 
   return Piece;
@@ -5805,7 +5883,7 @@ var Piece = /*#__PURE__*/function () {
 
 var _default = Piece;
 exports.default = _default;
-},{"gsap":"node_modules/gsap/index.js"}],"Board.js":[function(require,module,exports) {
+},{"gsap":"node_modules/gsap/index.js","./pieceColors":"pieceColors.js"}],"Board.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5830,6 +5908,7 @@ var Board = /*#__PURE__*/function () {
     var options = inOptions || {};
     var na = [null, null, null, null];
     this.cells = [[].concat(na), [].concat(na), [].concat(na), [].concat(na)];
+    this.prevConf = [];
     this.misurements = {
       width: options.width || 500,
       gap: options.width ? options.width * 0.03 : 12,
@@ -5915,12 +5994,27 @@ var Board = /*#__PURE__*/function () {
       return cells;
     }
   }, {
+    key: "win",
+    value: function win() {
+      var winElem = document.createElement('div');
+      winElem.className = 'win';
+      winElem.innerText = 'You win!\nCLick to continue';
+
+      winElem.onclick = function (e) {
+        e.target.remove();
+      };
+
+      this.elem.appendChild(winElem);
+    }
+  }, {
     key: "getRandomPiece",
     value: function getRandomPiece() {
       var number = Math.random() < 0.75 ? 2 : 4;
       var emptyCells = this.getEmptyCells();
       var cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-      var piece = new _Piece.default(number, cell, this);
+      var piece = new _Piece.default(number, cell, this, {
+        animate: true
+      });
       return piece;
     }
   }, {
@@ -5931,8 +6025,23 @@ var Board = /*#__PURE__*/function () {
   }, {
     key: "emptyCell",
     value: function emptyCell(pos) {
-      console.log('empty: ' + pos.x + ',' + pos.y);
       this.cells[pos.x][pos.y] = null;
+    }
+  }, {
+    key: "emptyBoard",
+    value: function emptyBoard() {
+      this.getPieces().forEach(function (piece) {
+        piece.destroy();
+      });
+
+      for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 4; j++) {
+          this.emptyCell({
+            x: i,
+            y: j
+          });
+        }
+      }
     }
   }, {
     key: "fillBoardWithConfig",
@@ -5946,7 +6055,7 @@ var Board = /*#__PURE__*/function () {
   }, {
     key: "logCells",
     value: function logCells() {
-      var cells = this.cells;
+      var cells = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.cells;
       console.log('-----------');
       console.log('|', cells[0][0] ? cells[0][0].number : 0, cells[1][0] ? cells[1][0].number : 0, cells[2][0] ? cells[2][0].number : 0, cells[3][0] ? cells[3][0].number : 0, '|');
       console.log('|', cells[0][1] ? cells[0][1].number : 0, cells[1][1] ? cells[1][1].number : 0, cells[2][1] ? cells[2][1].number : 0, cells[3][1] ? cells[3][1].number : 0, '|');
@@ -5963,15 +6072,30 @@ var Board = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "addPiece",
-    value: function addPiece() {
+    key: "addRandomPiece",
+    value: function addRandomPiece() {
       var cell = this.getRandomPiece();
       this.fillCell(cell);
+    }
+  }, {
+    key: "undo",
+    value: function undo() {
+      if (this.prevConf.length) {
+        this.emptyBoard();
+        this.fillBoardWithConfig(this.prevConf);
+      }
     }
   }, {
     key: "move",
     value: function move(direction) {
       var moved = false;
+      var tempPrevConf = [];
+      this.getPieces().forEach(function (piece) {
+        tempPrevConf.push({
+          number: piece.number,
+          position: piece.position
+        });
+      });
 
       if (direction === 0) {
         moved = this.moveUp();
@@ -5994,7 +6118,11 @@ var Board = /*#__PURE__*/function () {
       });
 
       if (moved) {
-        this.addPiece();
+        this.addRandomPiece();
+        this.prevConf = tempPrevConf;
+        var confString = JSON.stringify(this.prevConf); // save config to localstorage
+
+        localStorage.setItem('config', confString);
       }
     }
   }, {
@@ -6218,24 +6346,21 @@ var _Board = _interopRequireDefault(require("./Board"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var initial = [{
-  number: 4,
+  number: 2,
   position: {
-    x: 3,
+    x: 0,
     y: 0
-  }
-}, {
-  number: 4,
-  position: {
-    x: 3,
-    y: 2
   }
 }, {
   number: 2,
   position: {
-    x: 3,
-    y: 3
+    x: 1,
+    y: 0
   }
-}];
+}]; // get config from localstorage
+
+var confString = localStorage.getItem('config');
+confString && (initial = JSON.parse(confString));
 var board;
 
 if (window.innerWidth < 500) {
@@ -6265,6 +6390,10 @@ document.addEventListener('keydown', function (e) {
     case 'ArrowLeft':
       direction = 3;
       break;
+
+    case 'Escape':
+      board.undo();
+      return;
 
     default:
       return;
@@ -6300,7 +6429,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59782" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52021" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

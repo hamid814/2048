@@ -7,6 +7,7 @@ class Board {
     const na = [null, null, null, null];
 
     this.cells = [[...na], [...na], [...na], [...na]];
+    this.prevConf = [];
 
     this.misurements = {
       width: options.width || 500,
@@ -91,13 +92,25 @@ class Board {
     return cells;
   }
 
+  win() {
+    const winElem = document.createElement('div');
+    winElem.className = 'win';
+    winElem.innerText = 'You win!\nCLick to continue';
+
+    winElem.onclick = (e) => {
+      e.target.remove();
+    };
+
+    this.elem.appendChild(winElem);
+  }
+
   getRandomPiece() {
     const number = Math.random() < 0.75 ? 2 : 4;
 
     const emptyCells = this.getEmptyCells();
     const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
 
-    const piece = new Piece(number, cell, this);
+    const piece = new Piece(number, cell, this, { animate: true });
 
     return piece;
   }
@@ -107,8 +120,18 @@ class Board {
   }
 
   emptyCell(pos) {
-    console.log('empty: ' + pos.x + ',' + pos.y);
     this.cells[pos.x][pos.y] = null;
+  }
+
+  emptyBoard() {
+    this.getPieces().forEach((piece) => {
+      piece.destroy();
+    });
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        this.emptyCell({ x: i, y: j });
+      }
+    }
   }
 
   fillBoardWithConfig(config) {
@@ -121,9 +144,7 @@ class Board {
     });
   }
 
-  logCells() {
-    const { cells } = this;
-
+  logCells(cells = this.cells) {
     console.log('-----------');
     console.log(
       '|',
@@ -167,13 +188,28 @@ class Board {
     }
   }
 
-  addPiece() {
+  addRandomPiece() {
     const cell = this.getRandomPiece();
     this.fillCell(cell);
   }
 
+  undo() {
+    if (this.prevConf.length) {
+      this.emptyBoard();
+      this.fillBoardWithConfig(this.prevConf);
+    }
+  }
+
   move(direction) {
     let moved = false;
+
+    const tempPrevConf = [];
+    this.getPieces().forEach((piece) => {
+      tempPrevConf.push({
+        number: piece.number,
+        position: piece.position,
+      });
+    });
 
     if (direction === 0) {
       moved = this.moveUp();
@@ -191,7 +227,13 @@ class Board {
     this.getPieces().forEach((piece) => (piece.justDoubled = false));
 
     if (moved) {
-      this.addPiece();
+      this.addRandomPiece();
+
+      this.prevConf = tempPrevConf;
+
+      const confString = JSON.stringify(this.prevConf);
+      // save config to localstorage
+      localStorage.setItem('config', confString);
     }
   }
 
